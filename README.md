@@ -50,6 +50,12 @@ Cada número representa a ativação/neuron count.
 
 Valores negativos são convertidos para 0.
 
+▶️ Para Compilar:
+```bash
+g++ -std=c++17 -O2 -I include src\glad.c .\neural_net_3d_parallel.cpp -L lib -lglfw3dll -lopengl32 -lgdi32 -luser32 -lkernel32 -o neural3d.exe
+```
+
+
 ▶️ Execução
 
 Para rodar lendo o arquivo:
