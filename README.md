@@ -55,6 +55,10 @@ Valores negativos são convertidos para 0.
 Para rodar lendo o arquivo:
 
 neural3d.exe ativacoes.txt
+ou em windows:
+```bash
+.\neural3d.exe .\ativacoes.txt
+```
 
 
 Ou, via stdin (pipe):
