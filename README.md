@@ -211,6 +211,28 @@ Esses arquivos são temporários e utilizados apenas para compor o JSON unificad
 
 ---
 
+# 🧠 Uso do Extrator
+
+O **Extrator** é um conjunto de ferramentas para **monitorar, registrar e visualizar** as ativações e gradientes de redes neurais durante o treinamento.  
+Ele permite compreender o comportamento interno de cada camada — convolucional e densa — gerando arquivos JSON detalhados e gráficos que documentam a evolução do modelo.
+
+---
+
+## ⚙️ Demo Executável
+
+Há uma demo executável no arquivo **`demo_train_unified_final.py`**.  
+Essa demo realiza a **extração das informações** durante o treinamento e salva os dados em um arquivo **JSON**.
+
+O JSON resultante é nomeado como: unified_epoch_X_demo_unified_final.json
+
+onde **X** representa o número da época salva.  
+
+Além disso, também são gerados arquivos auxiliares: dense_epoch_X_demo_unified_final.json 
+
+Esses arquivos são temporários e utilizados apenas para compor o JSON unificado.
+
+---
+
 ## 🗂️ Estrutura do JSON
 
 ### **meta**
@@ -256,7 +278,7 @@ Cada camada (ex: `fc1`) contém:
 
 ### **metrics**
 Estatísticas do treinamento até a época atual:
-- `acc_per_epoch`: acurácias por época registradas anteriormente  
+- `acc_per_epoch`: acurácias por época registradas anteriormente
 - `acc_last`: acurácia da última época registrada  
 - `refs_orig_png_grid`: mosaico contendo todas as imagens de referência utilizadas na rede  
 - `ref_indices`: índices do *loader* referentes às imagens fixadas como referência  
