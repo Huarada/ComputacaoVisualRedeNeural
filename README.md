@@ -294,7 +294,7 @@ Além dos arquivos JSON por época, a demo também gera:
 - **`ativacao.txt`** → arquivo utilizado para a **visualização 3D da arquitetura da rede**.  
   O código responsável por gerar este arquivo encontra-se em **`gen_architecture.py`**.
 
-- **`refs_orig_i`** → i-ésima imagem de referência fixada do loader.
+- **`refs_orig_i.png`** → i-ésima imagem de referência fixada do loader.
 
 ---
 
