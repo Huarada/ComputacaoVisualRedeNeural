@@ -206,3 +206,97 @@ neural3d.exe ativacoes.txt
 
 
 Uma janela abrirá mostrando a rede neural 3D com cores e conexões.
+
+Esses arquivos são temporários e utilizados apenas para compor o JSON unificado.
+
+---
+
+## 🗂️ Estrutura do JSON
+
+### **meta**
+Contém informações gerais da execução:
+- `epoch`: época à qual os dados se referem  
+- `timestamp`: data e hora da execução  
+- `run_id`: identificação única da execução  
+
+### **conv**
+Dados referentes às camadas convolucionais:
+- `epoch`: época correspondente  
+- `layers`: lista de camadas convolucionais monitoradas  
+
+Cada camada (ex: `conv1`) contém:
+- `H`: altura do Grad-Map  
+- `W`: largura do Grad-Map  
+- `count`: número de amostras utilizadas para gerar o Grad-Map  
+- `map`: tensor com os dados do Grad-Map, utilizado para visualizar os padrões aprendidos pela camada  
+- `acts-meta`: metadados das ativações  
+  - `H`: altura do mapa de features  
+  - `W`: largura do mapa de features  
+  - `channels`: número de canais da camada  
+  - `imgs`: número de imagens de referência usadas para extrair as ativações  
+- `acts`: vetor contendo todas as ativações para as entradas de referência fixadas  
+
+### **dense**
+Dados referentes às camadas densas:
+- **meta**: informações gerais  
+  - `epoch`: época correspondente  
+  - `timestamp`: data e hora da execução  
+  - `run_id`: identificação da execução  
+  - `total_examples`: número de amostras utilizadas para extrair o *Gradient × Activation*  
+
+- **layers**: lista de camadas densas monitoradas  
+
+Cada camada (ex: `fc1`) contém:
+- `in_features`: dimensão da entrada  
+- `out_features`: dimensão da saída (ou número de neurônios)  
+- `ref_inputs`: lista de vetores de entrada da camada para as amostras de referência fixadas  
+- `ref_acts`: ativações correspondentes às entradas de referência  
+- `heatmap`: vetor contendo o *Gradient × Activation*, que representa a força de cada ligação entre neurônios.  
+  Para obter a relevância individual de cada neurônio, deve-se somar e normalizar esses valores.  
+
+### **metrics**
+Estatísticas do treinamento até a época atual:
+- `acc_per_epoch`: acurácias por época registradas anteriormente  
+- `acc_last`: acurácia da última época registrada  
+- `refs_orig_png_grid`: mosaico contendo todas as imagens de referência utilizadas na rede  
+- `ref_indices`: índices do *loader* referentes às imagens fixadas como referência  
+
+---
+
+## 📊 Saídas Adicionais
+
+Além dos arquivos JSON por época, a demo também gera:
+- **`acc_plot_epoch_X.png`** → gráfico da evolução da acurácia até a época X.  
+  A geração desses gráficos é feita pela função **`_plot_acc_then_png()`**.
+
+- **`ativacao.txt`** → arquivo utilizado para a **visualização 3D da arquitetura da rede**.  
+  O código responsável por gerar este arquivo encontra-se em **`gen_architecture.py`**.
+
+---
+
+## 🖥️ Visualizadores
+
+Três programas adicionais permitem a visualização dos dados contidos nos JSONs:
+
+1. **`visualizador_de_acts_maps_tkinter_matplotlib.py`**  
+   → Exibe as ativações das camadas convolucionais como imagens.
+
+2. **`visualizador_de_grad_maps_tkinter_matplotlib.py`**  
+   → Exibe os *Layer-Maps* das camadas convolucionais.
+
+3. **`visualizador_de_neuronios_tkinter_matplotlib.py`**  
+   → Exibe as ativações e os *Gradient × Activation* das camadas densas.
+
+---
+
+## 🧩 Configuração de uma Nova Rede
+
+Para realizar a extração de dados durante o treinamento com outra rede, basta seguir o exemplo contido em **`demo_train_catsdogs_unified.py`**.  
+
+Caso deseje reproduzir exatamente o procedimento da função `main()`, siga estes passos:
+1. Crie uma classe de modelo semelhante à **`SmallCNN`**.  
+2. Implemente uma função de *loader* de dataset, semelhante à **`get_catsdogs_loader()`**.
+
+Essas duas partes garantem a compatibilidade com o pipeline de extração e salvamento em JSON.
+
+---
