@@ -220,7 +220,7 @@ Ele permite compreender o comportamento interno de cada camada — convolucional
 
 ## ⚙️ Demo Executável
 
-Há uma demo executável no arquivo **`demo_train_unified_final.py`**.  
+Há uma demo executável no arquivo **`demo_train_catsdogs_unified.py`**.  
 Essa demo realiza a **extração das informações** durante o treinamento e salva os dados em um arquivo **JSON**.
 
 O JSON resultante é nomeado como: unified_epoch_X_demo_unified_final.json
@@ -293,6 +293,8 @@ Além dos arquivos JSON por época, a demo também gera:
 
 - **`ativacao.txt`** → arquivo utilizado para a **visualização 3D da arquitetura da rede**.  
   O código responsável por gerar este arquivo encontra-se em **`gen_architecture.py`**.
+
+- **`refs_orig_i` → i-ésima imagem de referência fixada do loader.
 
 ---
 
