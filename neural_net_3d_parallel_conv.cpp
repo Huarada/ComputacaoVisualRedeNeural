@@ -67,7 +67,20 @@ static Mat4 matIdentity(){ Mat4 r{}; r.m[0]=r.m[5]=r.m[10]=r.m[15]=1; return r; 
 static Mat4 matMul(const Mat4& a,const Mat4& b){ Mat4 r{}; for(int c=0;c<4;++c) for(int rI=0;rI<4;++rI) r.m[c*4+rI]=a.m[0*4+rI]*b.m[c*4+0]+a.m[1*4+rI]*b.m[c*4+1]+a.m[2*4+rI]*b.m[c*4+2]+a.m[3*4+rI]*b.m[c*4+3]; return r; }
 static Mat4 matTranslate(const Vec3& t){ Mat4 r=matIdentity(); r.m[12]=t.x; r.m[13]=t.y; r.m[14]=t.z; return r; }
 static Mat4 matScale(float sx,float sy,float sz){ Mat4 r{}; r.m[0]=sx; r.m[5]=sy; r.m[10]=sz; r.m[15]=1; return r; }
+
+// Rotação em torno do eixo Y (usada para girar as folhas verticais)
+static Mat4 matRotateY(float angle){
+    Mat4 r = matIdentity();
+    float c = std::cos(angle);
+    float s = std::sin(angle);
+    r.m[0] =  c;  r.m[2] = s;
+    r.m[8] = -s;  r.m[10] = c;
+    return r;
+}
+
 static Mat4 matPerspective(float fovy,float aspect,float n,float f){ float k=1.0f/std::tan(fovy*PI/180.0f/2.0f); Mat4 r{}; r.m[0]=k/aspect; r.m[5]=k; r.m[10]=(f+n)/(n-f); r.m[11]=-1; r.m[14]=(2*f*n)/(n-f); return r; }
+
+
 static Vec3 normalize(const Vec3& v){ float l=std::sqrt(v.x*v.x+v.y*v.y+v.z*v.z); return {v.x/l,v.y/l,v.z/l}; }
 static Vec3 cross(const Vec3& a,const Vec3& b){ return {a.y*b.z-a.z*b.y, a.z*b.x-a.x*b.z, a.x*b.y-a.y*b.x}; }
 static float dotv(const Vec3& a,const Vec3& b){ return a.x*b.x+a.y*b.y+a.z*b.z; }
@@ -383,35 +396,59 @@ int main(int argc,char** argv){
 
         // convs (fatias)
 // convs (blocos de fatias no eixo X: profundidade = d = C)
-        glBindVertexArray(vaoC);
-        for(size_t s=0;s<stages.size();++s){
-            for(size_t b=0;b<stages[s].size();++b){
-                for(size_t i=0;i<stages[s][b].size();++i){
-                    const UnitPos& up = pos[s][b][i];
-                    if(!up.isConv) continue;
+// ======== Renderização de camadas convolucionais (folhas voltadas para frente, empilhadas no eixo Z) ========
+// ======== Renderização de camadas convolucionais (folhas voltadas para frente, com espaçamento visível entre elas) ========
+glBindVertexArray(vaoC);
+for (size_t s = 0; s < stages.size(); ++s) {
+    for (size_t b = 0; b < stages[s].size(); ++b) {
+        for (size_t i = 0; i < stages[s][b].size(); ++i) {
+            const UnitPos& up = pos[s][b][i];
+            if (!up.isConv) continue;
 
-                    // nº de “fatias” visuais conforme C
-                    int panels = std::max(3, std::min(7, (up.C<=0?3: (3 + (up.C%5)))));
-                    float totalX = up.d;                   // profundidade agora é no X
-                    float t = totalX / (float)panels;      // espessura de cada fatia (X)
-                    float x0 = -0.5f*totalX + 0.5f*t;      // centro da 1ª fatia
+            // Número de folhas
+            int panels = std::clamp(up.C / 2, 6, 48);
 
-                    // A×B (up.w × up.h) é a face frontal (plano YZ)
-                    float base[3] = {0.30f, 0.70f, 1.00f};
-                    for(int k=0;k<panels;++k){
-                        float xOff = x0 + k*t;
-                        Mat4 M = matMul(
-                                    matTranslate({up.center.x + xOff, up.center.y, up.center.z}),
-                                    // escala: X=t (profundidade), Y=h (B), Z=w (A)
-                                    matScale(t*0.95f, up.h, up.w));
-                        glUniformMatrix4fv(uModel,1,GL_FALSE,M.m);
-                        glUniform3f(uBase, base[0], base[1], base[2]);
-                        glDrawElements(GL_TRIANGLES, (GLsizei)cI.size(), GL_UNSIGNED_INT, 0);
-                            }
-                        }
-                    }
-                }
-        glBindVertexArray(0);
+            // ======= Linha que controla o espaçamento entre as folhas (gap entre elas) =======
+            float spacing = 7.5f; // ← Aumente este valor para afastar mais as folhas entre si (sem mudar a grossura)
+            // ================================================================================
+
+            float totalDepth = up.d;
+            float sheetThickness = totalDepth / (float)panels * 0.2f; // Folhas finas
+            float z0 = -0.5f * totalDepth;
+
+            // Cor base azulada
+            float base[3] = {0.25f, 0.7f, 1.0f};
+
+            for (int k = 0; k < panels; ++k) {
+                float zOff = z0 + k * (sheetThickness * spacing); // ← Aqui é aplicado o espaçamento
+
+                // Gradiente de profundidade (camadas mais escuras ao fundo)
+                float shade = 0.65f + 0.35f * (float)k / (float)panels;
+                float r = base[0] * shade;
+                float g = base[1] * shade;
+                float b = base[2] * shade;
+
+                // Cada folha é orientada no plano XY (voltada para frente)
+                Mat4 M = matMul(
+                    matTranslate({up.center.x, up.center.y, up.center.z + zOff}),
+                    matScale(up.w, up.h, sheetThickness)
+                );
+
+                glUniformMatrix4fv(uModel, 1, GL_FALSE, M.m);
+                glUniform3f(uBase, r, g, b);
+                glDrawElements(GL_TRIANGLES, (GLsizei)cI.size(), GL_UNSIGNED_INT, 0);
+            }
+        }
+    }
+}
+glBindVertexArray(0);
+
+
+
+
+
+
+
 
 
         glfwSwapBuffers(win);
