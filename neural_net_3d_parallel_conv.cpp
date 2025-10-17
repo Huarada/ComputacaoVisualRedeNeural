@@ -406,7 +406,8 @@ for (size_t s = 0; s < stages.size(); ++s) {
             if (!up.isConv) continue;
 
             // Número de folhas
-            int panels = std::clamp(up.C / 2, 6, 48);
+            // Quantidade de folhas = C do {AxBxC}
+            int panels = std::max(1, up.C);
 
             // ======= Linha que controla o espaçamento entre as folhas (gap entre elas) =======
             float spacing = 7.5f; // ← Aumente este valor para afastar mais as folhas entre si (sem mudar a grossura)
