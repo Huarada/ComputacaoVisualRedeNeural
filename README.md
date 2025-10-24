@@ -212,18 +212,18 @@ NOTA: O que cada parte do código faz
 
 O projeto é single-file mas fortemente modularizado por classes, com nomes longos e comentários:
 
-1 namespace Math
+## 1 namespace Math
 
   Funções matemáticas explícitas (identidade, perspective, lookAt, normalização, produto vetorial, etc.).
   Importante para depuração: todas as matrizes/operadores têm nomes que indicam intenção (ex.: MakeLookAtMatrix, MultiplyMat4).
 
-2 Shaders (kLineVS/kLineFS e kLitVS/kLitFS)
+## 2 Shaders (kLineVS/kLineFS e kLitVS/kLitFS)
 
   Line shader: desenha as conexões entre camadas.
   
   Lit shader: Phong “barato” para iluminação difusa + rim light, usado em esferas (neurônios) e painéis (folhas de conv).
 
-3 Geometry builders
+## 3 Geometry builders
 
   BuildNeuronSphereMesh(...)
   Gera esfera (pos + normal) para cada neurônio.
@@ -231,12 +231,12 @@ O projeto é single-file mas fortemente modularizado por classes, com nomes long
   BuildConvPanelCubeMesh(...)
   Gera um cubo unitário. Cada “folha” da CONV é um cubo escalado (painel fino).
 
-4 Parser de entrada (AST)
+## 4 Parser de entrada (AST)
 
   ParseNode(...) + auxiliares (ParseNumberToken, ParseConvToken etc.)
   Interpretam o texto do arquivo na mesma gramática do código original.
 
-5 Semântica do modelo (LayerUnit, Stage, Branch)
+## 5 Semântica do modelo (LayerUnit, Stage, Branch)
    
    LayerUnit descreve um elemento lógico da rede:
    
@@ -250,7 +250,7 @@ O projeto é single-file mas fortemente modularizado por classes, com nomes long
    
    Esta estrutura preserva a ideia de múltiplos ramos por estágio.
 
-6 Visuals (dados prontos para render)
+## 6 Visuals (dados prontos para render)
 
   NeuronLayerVisual
   Guarda instâncias: centro, raio e “nível” para cor.
@@ -262,7 +262,7 @@ O projeto é single-file mas fortemente modularizado por classes, com nomes long
   
   baseColorRGB → cor base do gradiente de profundidade.
 
-7 CnnModelLayout
+## 7 CnnModelLayout
 
   Coração do pipeline de dados:
   
@@ -306,7 +306,7 @@ O projeto é single-file mas fortemente modularizado por classes, com nomes long
   
   Espaçamento entre folhas da CONV: ConvLayerVisual::panelSpacingMultiplier
 
-8 SceneRenderer
+## 8 SceneRenderer
 
  Tudo de OpenGL + câmera:
 
