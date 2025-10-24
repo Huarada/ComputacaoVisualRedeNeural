@@ -208,7 +208,8 @@ neural3d.exe ativacoes.txt
 Uma janela abrirá mostrando a rede neural 3D com cores e conexões.
 
 Esses arquivos são temporários e utilizados apenas para compor o JSON unificado.
-NOTA: O que cada parte do código faz
+
+## NOTA: O que cada parte do código faz
 
 O projeto é single-file mas fortemente modularizado por classes, com nomes longos e comentários:
 
