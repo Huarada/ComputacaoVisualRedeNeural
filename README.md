@@ -214,141 +214,140 @@ O projeto é single-file mas fortemente modularizado por classes, com nomes long
 
 1 namespace Math
 
-Funções matemáticas explícitas (identidade, perspective, lookAt, normalização, produto vetorial, etc.).
-Importante para depuração: todas as matrizes/operadores têm nomes que indicam intenção (ex.: MakeLookAtMatrix, MultiplyMat4).
+  Funções matemáticas explícitas (identidade, perspective, lookAt, normalização, produto vetorial, etc.).
+  Importante para depuração: todas as matrizes/operadores têm nomes que indicam intenção (ex.: MakeLookAtMatrix, MultiplyMat4).
 
 2 Shaders (kLineVS/kLineFS e kLitVS/kLitFS)
 
-Line shader: desenha as conexões entre camadas.
-
-Lit shader: Phong “barato” para iluminação difusa + rim light, usado em esferas (neurônios) e painéis (folhas de conv).
+  Line shader: desenha as conexões entre camadas.
+  
+  Lit shader: Phong “barato” para iluminação difusa + rim light, usado em esferas (neurônios) e painéis (folhas de conv).
 
 3 Geometry builders
 
-BuildNeuronSphereMesh(...)
-Gera esfera (pos + normal) para cada neurônio.
-
-BuildConvPanelCubeMesh(...)
-Gera um cubo unitário. Cada “folha” da CONV é um cubo escalado (painel fino).
+  BuildNeuronSphereMesh(...)
+  Gera esfera (pos + normal) para cada neurônio.
+  
+  BuildConvPanelCubeMesh(...)
+  Gera um cubo unitário. Cada “folha” da CONV é um cubo escalado (painel fino).
 
 4 Parser de entrada (AST)
 
-ParseNode(...) + auxiliares (ParseNumberToken, ParseConvToken etc.)
-Interpretam o texto do arquivo na mesma gramática do código original.
+  ParseNode(...) + auxiliares (ParseNumberToken, ParseConvToken etc.)
+  Interpretam o texto do arquivo na mesma gramática do código original.
 
 5 Semântica do modelo (LayerUnit, Stage, Branch)
-
-LayerUnit descreve um elemento lógico da rede:
-
-kNeuron + neuronCount (apenas para colorir/legenda pedagógica)
-
-kConvolution + A,B,C (dimensões AxBxC)
-
-Stage é um vetor de Branch.
-
-Branch é um vetor de LayerUnit.
-
-Esta estrutura preserva a ideia de múltiplos ramos por estágio.
+   
+   LayerUnit descreve um elemento lógico da rede:
+   
+   kNeuron + neuronCount (apenas para colorir/legenda pedagógica)
+   
+   kConvolution + A,B,C (dimensões AxBxC)
+   
+   Stage é um vetor de Branch.
+   
+   Branch é um vetor de LayerUnit.
+   
+   Esta estrutura preserva a ideia de múltiplos ramos por estágio.
 
 6 Visuals (dados prontos para render)
 
-NeuronLayerVisual
-Guarda instâncias: centro, raio e “nível” para cor.
-
-ConvLayerVisual
-Guarda blocos {A,B,C} convertidos em dimensões no mundo (width/height/depth) e parâmetros visuais:
-
-panelSpacingMultiplier → espaço “em branco” entre as folhas (sem alterar a grossura).
-
-baseColorRGB → cor base do gradiente de profundidade.
+  NeuronLayerVisual
+  Guarda instâncias: centro, raio e “nível” para cor.
+  
+  ConvLayerVisual
+  Guarda blocos {A,B,C} convertidos em dimensões no mundo (width/height/depth) e parâmetros visuais:
+  
+  panelSpacingMultiplier → espaço “em branco” entre as folhas (sem alterar a grossura).
+  
+  baseColorRGB → cor base do gradiente de profundidade.
 
 7 CnnModelLayout
 
-Coração do pipeline de dados:
-
-LoadInputAndBuildLayout(argc, argv)
-
-Lê argv[1] (ou STDIN)
-
-Faz o parse para AST → parsedStages
-
-Constrói visuals + âncoras + linhas.
-
-BuildVisualLayersAndComputeBounds()
-
-Normaliza dimensões com base nos máximos {A,B,C} do modelo.
-
-Calcula a posição (X/Y/Z) de cada instância:
-
-Esferas (neurônios) → raio padrão (configurável).
-
-Blocos conv → largura/altura/profundidade proporcionais aos seus A/B/C.
-
-Gera âncoras para conexões (lado direito/esquerdo), respeitando o meio-tamanho em X:
-
-Neurônios usam o raio como halfWidthX.
-
-Convs usam metade da largura.
-
-Constrói connectionLineVertices (lista xyz intercalada) ligando todo estágio s → s+1.
-
-Getter público sugerido:
-
-GetConnectionLineVertices() retorna as linhas para o renderer.
-
-Parâmetros visuais fáceis de ajustar (comentados no código):
-
-Raio do neurônio: kNeuronRadius
-
-Espaçamento vertical (entre linhas): kRowSpacingY
-
-Espaçamento entre ramos (Z): kBranchSpacingZ
-
-Espaçamento entre folhas da CONV: ConvLayerVisual::panelSpacingMultiplier
+  Coração do pipeline de dados:
+  
+  LoadInputAndBuildLayout(argc, argv)
+  
+  Lê argv[1] (ou STDIN)
+  
+  Faz o parse para AST → parsedStages
+  
+  Constrói visuals + âncoras + linhas.
+  
+  BuildVisualLayersAndComputeBounds()
+  
+  Normaliza dimensões com base nos máximos {A,B,C} do modelo.
+  
+  Calcula a posição (X/Y/Z) de cada instância:
+  
+  Esferas (neurônios) → raio padrão (configurável).
+  
+  Blocos conv → largura/altura/profundidade proporcionais aos seus A/B/C.
+  
+  Gera âncoras para conexões (lado direito/esquerdo), respeitando o meio-tamanho em X:
+  
+  Neurônios usam o raio como halfWidthX.
+  
+  Convs usam metade da largura.
+  
+  Constrói connectionLineVertices (lista xyz intercalada) ligando todo estágio s → s+1.
+  
+  Getter público sugerido:
+  
+  GetConnectionLineVertices() retorna as linhas para o renderer.
+  
+  Parâmetros visuais fáceis de ajustar (comentados no código):
+  
+  Raio do neurônio: kNeuronRadius
+  
+  Espaçamento vertical (entre linhas): kRowSpacingY
+  
+  Espaçamento entre ramos (Z): kBranchSpacingZ
+  
+  Espaçamento entre folhas da CONV: ConvLayerVisual::panelSpacingMultiplier
 
 8 SceneRenderer
 
-Tudo de OpenGL + câmera:
+ Tudo de OpenGL + câmera:
 
-Criação de janela/GL, compilação e link dos shaders.
+ Criação de janela/GL, compilação e link dos shaders.
 
-Criação dos VAOs/VBOs para esfera, cubo e linhas.
+ Criação dos VAOs/VBOs para esfera, cubo e linhas.
+ 
+ Câmera orbital com callbacks (mouse/scroll).
+ 
+ UploadConnectionLines(layout)
+ Sobe connectionLineVertices para GPU (VBO).
 
-Câmera orbital com callbacks (mouse/scroll).
+ RenderFrame(...)
+ 
+ Calcula ViewProj, desenha linhas primeiro (shader de linhas).
+ 
+ Desenha neurônios (esferas) com escala = raio.
+ 
+ Desenha camadas CONV como painéis (folhas) com espessura fina + gap configurável.
+ 
+ Hotkeys (1/2/3/0/Esc) já tratados.
+ 
+ IMPORTANTE: Ajustes comuns (pontos “perguntados com frequência”)
+ 
+ Tamanho das esferas (neurônios)
+ Procure por kNeuronRadius em CnnModelLayout::BuildVisualLayersAndComputeBounds().
+ A escala da malha da esfera usa diretamente esse raio.
+ 
+ Afastar as folhas da conv (mais espaço em branco)
+ Modifique ConvLayerVisual::panelSpacingMultiplier.
+ Isso não altera a “grossura” (thickness) da folha, só a distância entre elas.
+ 
+ Largura/altura/profundidade do bloco conv
+ São proporcionais a {A,B,C} normalizados pelos máximos do modelo, limitados por:
+ 
+ kWorldMaxWidth, kWorldMaxHeight, kWorldMaxDepth.
+ 
+ Conexões não aparecem?
+ Verifique se UploadConnectionLines(layout) é chamado após criar o contexto OpenGL (após CreateWindowAndInitializeGlContext()), e se seu input tem pelo menos 2 estágios.
 
-UploadConnectionLines(layout)
-Sobe connectionLineVertices para GPU (VBO).
-
-RenderFrame(...)
-
-Calcula ViewProj, desenha linhas primeiro (shader de linhas).
-
-Desenha neurônios (esferas) com escala = raio.
-
-Desenha camadas CONV como painéis (folhas) com espessura fina + gap configurável.
-
-Hotkeys (1/2/3/0/Esc) já tratados.
-------------------------------------
-IMPORTANTE: Ajustes comuns (pontos “perguntados com frequência”)
-
-Tamanho das esferas (neurônios)
-Procure por kNeuronRadius em CnnModelLayout::BuildVisualLayersAndComputeBounds().
-A escala da malha da esfera usa diretamente esse raio.
-
-Afastar as folhas da conv (mais espaço em branco)
-Modifique ConvLayerVisual::panelSpacingMultiplier.
-Isso não altera a “grossura” (thickness) da folha, só a distância entre elas.
-
-Largura/altura/profundidade do bloco conv
-São proporcionais a {A,B,C} normalizados pelos máximos do modelo, limitados por:
-
-kWorldMaxWidth, kWorldMaxHeight, kWorldMaxDepth.
-
-Conexões não aparecem?
-Verifique se UploadConnectionLines(layout) é chamado após criar o contexto OpenGL (após CreateWindowAndInitializeGlContext()), e se seu input tem pelo menos 2 estágios.
-------------------------------------------------------------------------------------------------------------------------------------------------------------
                                                 FIM DO TRECHO SOBRE A MODELAGEM 3D 
-------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # 🧠 Uso do Extrator
 
