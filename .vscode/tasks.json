@@ -27,6 +27,36 @@
                 "isDefault": true
             },
             "detail": "compiler: C:/msys64/ucrt64/bin/g++.exe"
+        },
+
+        {
+            "label": "build_debug",
+            "type": "shell",
+            "command": "g++",
+            "args": [
+                "-std=c++17",
+                "-g",                   // <-- Símbolos de depuração
+                "-O0",                  // <-- Sem otimização
+                "-I", "include",
+                "src/glad.c",
+                "neural_net_3d_conv_refactored_up.cpp",
+                "-L", "lib",
+                "-lglfw3dll",
+                "-lopengl32",
+                "-lgdi32",
+                "-luser32",
+                "-lkernel32",
+                "-o", "neural3d.exe"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$gcc"
         }
     ]
 }
+
