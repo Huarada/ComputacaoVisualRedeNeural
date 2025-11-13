@@ -24,7 +24,7 @@
 #include <algorithm>
 #include <queue>
 #include <filesystem>
-#include <windows.h>
+#include <sstream>
 
 static constexpr float PI = 3.1415926535f;
 
@@ -289,12 +289,12 @@ public:
     struct NeuronInstance {
         Vec3 worldCenter;
         float worldRadius;
-        int neuronCountForColor;
+        float neuronColor[3];
     };
     std::vector<NeuronInstance> instances;
 
-    void AddNeuronInstance(const Vec3& center, int count, float radius = 0.7f){
-        instances.push_back({center, radius, count});
+    void AddNeuronInstance(const Vec3& center, float red, float green, float blue, float radius = 0.7f){
+        instances.push_back({center, radius, {red, green, blue}});
     }
 };
 
@@ -505,7 +505,7 @@ private:
                         Vec3 center { kStageX0 + s*stageDeltaX,
                                       yStart + i*kRowSpacingY,
                                       zStart + b*kBranchSpacingZ };
-                        neuVis.AddNeuronInstance(center, u.neuronCount, kNeuronRadius);
+                        neuVis.AddNeuronInstance(center, 1.0, 1.0, 1.0, kNeuronRadius);
                         if (unitAnchors[s][b].size() < branch.size())
                             unitAnchors[s][b].resize(branch.size());
                         unitAnchors[s][b][i] = UnitAnchor{
@@ -594,7 +594,7 @@ public:
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);
         glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE);
-        GLFWwindow* win = glfwCreateWindow(1000,700,"Neural CNN 3D — Clean Code",nullptr,nullptr);
+        GLFWwindow* win = glfwCreateWindow(1000, 700, "Neural CNN 3D — Clean Code", nullptr, nullptr);
         if(!win){ glfwTerminate(); return nullptr; }
         glfwMakeContextCurrent(win); glfwSwapInterval(1);
         if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)){ std::fprintf(stderr,"Falha GLAD\n"); return nullptr; }
@@ -681,7 +681,7 @@ public:
             return false; 
 
         // Prepara para carregar novas cores de neurônios
-        std::queue<int> loadedNeuronColors;
+        std::queue<float*> loadedNeuronColors;
         //bool inNeuronColorBlock = false;
         std::string line;
 
@@ -691,7 +691,12 @@ public:
             if (line.empty()) {
                 continue;
             }
-            loadedNeuronColors.push(std::stoi(line));
+
+            std::stringstream ss(line);
+            float* color = new float[3];
+            ss >> color[0] >> color[1] >> color[2];
+
+            loadedNeuronColors.push(color);
         }
 
         if (loadedNeuronColors.size() < layout.numberNeurons) // Não há neurônios suficientes 
@@ -700,7 +705,9 @@ public:
         // Atualiza as cores
         for(auto& layer : layout.neuronVisuals){
             for (auto& n : layer.instances){
-                n.neuronCountForColor = loadedNeuronColors.front();
+                n.neuronColor[0] = loadedNeuronColors.front()[0];
+                n.neuronColor[1] = loadedNeuronColors.front()[1];
+                n.neuronColor[2] = loadedNeuronColors.front()[2];
                 loadedNeuronColors.pop();
             }
         }
@@ -756,7 +763,7 @@ public:
             glUniformMatrix4fv(uLinesViewProj, 1, GL_FALSE, vp.m);
             glUniform3f(uLinesColor, 0.75f, 0.75f, 0.8f); // cinza claro
             glBindVertexArray(vaoLines);
-            glLineWidth(1.2f);
+            glLineWidth(1.6f);
             glDrawArrays(GL_LINES, 0, lineVertexCount);
             glBindVertexArray(0);
         }
@@ -791,27 +798,16 @@ public:
     }
 
 private:
-    static void ComputeColorFromNeuronCount(int count, float outRGB[3]){
-        // Cores pedagógicas por “ano”/nível — igual ao original, mas nome descritivo
-        if(count<=0){ outRGB[0]=0.85f; outRGB[1]=0.85f; outRGB[2]=0.85f; return; } // cinza
-        if(count==1){ outRGB[0]=0.20f; outRGB[1]=0.40f; outRGB[2]=1.00f; return; } // azul
-        if(count==2){ outRGB[0]=0.20f; outRGB[1]=1.00f; outRGB[2]=0.20f; return; } // verde
-        if(count==3){ outRGB[0]=1.00f; outRGB[1]=0.95f; outRGB[2]=0.10f; return; } // amarelo
-        if(count==4){ outRGB[0]=1.00f; outRGB[1]=0.60f; outRGB[2]=0.10f; return; } // laranja
-        outRGB[0]=1.00f; outRGB[1]=0.25f; outRGB[2]=0.25f;                         // vermelho
-    }
-
     void DrawNeuronLayerVisuals(const std::vector<NeuronLayerVisual>& visuals){
         glBindVertexArray(vaoSphere);
         for(const auto& layer : visuals){
             for(const auto& n : layer.instances){
-                float rgb[3]; ComputeColorFromNeuronCount(n.neuronCountForColor, rgb);
                 Mat4 M = Math::MultiplyMat4(
                     Math::MakeTranslationMatrix(n.worldCenter),
                     Math::MakeScaleMatrix(n.worldRadius, n.worldRadius, n.worldRadius)
                 );
                 glUniformMatrix4fv(uLitModel,1,GL_FALSE,M.m);
-                glUniform3f(uLitBaseColor,rgb[0],rgb[1],rgb[2]);
+                glUniform3f(uLitBaseColor,n.neuronColor[0], n.neuronColor[1], n.neuronColor[2]);
                 glDrawElements(GL_TRIANGLES, sphereIndexCount, GL_UNSIGNED_INT, 0);
             }
         }
