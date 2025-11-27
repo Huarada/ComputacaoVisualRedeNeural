@@ -39,7 +39,7 @@
                 "-O0",                  // <-- Sem otimização
                 "-I", "include",
                 "src/glad.c",
-                "neural_net_3d_conv_refactored_up.cpp",
+                "neural_net_3d_refactored_textured.cpp",
                 "-L", "lib",
                 "-lglfw3dll",
                 "-lopengl32",

@@ -7,8 +7,9 @@
             "request": "launch",
             "program": "${workspaceFolder}/neural3d.exe",
             "args": [
-                ".\\model_layout.txt",
-                ".\\neuron_update.txt"
+                ".\\ativacoes.txt",
+                ".\\neuron_up.txt",
+                ".\\image.txt"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

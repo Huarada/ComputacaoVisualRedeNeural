@@ -13,7 +13,8 @@ def model_extract(modelo):
             dados_str = f.read()
     except Exception as e:
         print(f"Erro ao ler o arquivo '{modelo}': {e}")
-
+        return []
+    
     dados_str = re.sub(r'\{.*?\}', '', dados_str)
     dados_str = dados_str.replace(", ,", "")
 
@@ -104,7 +105,7 @@ if __name__ == "__main__":
         text=True
     )
 
-    cmap = mat.colormaps.get_cmap("turbo")
+    cmap = mat.colormaps.get_cmap("coolwarm")
 
     numRef = len(logs.epoca.get(0)[0])
     for (ep, cam) in logs.epoca.items():
