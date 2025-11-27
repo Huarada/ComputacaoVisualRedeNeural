@@ -812,6 +812,7 @@ public:
     }
 
     bool UpdateTexture(const std::string& filepath) {
+        convTextureLoaded = 0;
         std::ifstream file(filepath);
         if (!file.is_open()) {
             // Arquivo não existe ou não pode ser aberto
@@ -853,7 +854,8 @@ public:
 
         convTexture = newTex;
         convTextureLoaded = 1;
-        return true;
+        
+        return convTextureLoaded;
     }
 
     // Verifica se houve atualização nas cores dos neurônios

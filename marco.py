@@ -99,7 +99,7 @@ if __name__ == "__main__":
         log_path = input("Insira o caminho para a pasta dos json: ").strip()
         logs = load_logs(log_path, modelo)
 
-    p = subprocess.Popen( ['./neural3d', f'./{model_layout}', './neuron_up.txt'],
+    p = subprocess.Popen( ['./neural3d', f'./{model_layout}', './neuron_up.txt', './image_up.txt'],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True
