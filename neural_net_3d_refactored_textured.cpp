@@ -520,12 +520,12 @@ private:
                         maxC=std::max(maxC,u.C);
                     }
 
-        const float kWorldMaxWidth  = 3.4f;
-        const float kWorldMaxHeight = 3.4f;
+        const float kWorldMaxWidth  = 6.8f;
+        const float kWorldMaxHeight = 6.8f;
         const float kWorldMaxDepth  = 1.8f;
 
-        const float kNeuronRadius   = 0.7f;
-        const float kRowSpacingY    = 2.1f;
+        const float kNeuronRadius   = 0.25f;
+        const float kRowSpacingY    = kNeuronRadius*3;
         const float kBranchSpacingZ = 2.5f;
 
         std::vector<float> stageX(parsedStages.size(), 0.0f);
@@ -555,7 +555,7 @@ private:
                 for (const auto& u : br) {
                     if (u.kind == LayerUnit::kConvolution) {
                         float w = std::max(0.6f, kWorldMaxWidth * float(u.A) / float(maxA));
-                        minSafeGap = std::max(minSafeGap, w * 0.90f);
+                        minSafeGap = std::max(minSafeGap, w * 1.0f);
                     }
                 }
             }
@@ -812,7 +812,6 @@ public:
     }
 
     bool UpdateTexture(const std::string& filepath) {
-        convTextureLoaded = 0;
         std::ifstream file(filepath);
         if (!file.is_open()) {
             // Arquivo não existe ou não pode ser aberto
@@ -829,6 +828,7 @@ public:
             return false;
         }
 
+        convTextureLoaded = 0;
         lastImage = texPath;
 
         // Remove espaços em branco no início e fim

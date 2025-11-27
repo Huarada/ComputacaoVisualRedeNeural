@@ -106,8 +106,8 @@ def load_images(image_path, num):
 
 
 if __name__ == "__main__":
-    #model_layout = "ativacoes.txt"
-    model_layout = input("Insira o caminho para o modelo: ").strip()
+    model_layout = "ativacoes.txt"
+    #model_layout = input("Insira o caminho para o modelo: ").strip()
     modelo = model_extract(model_layout)
     neuron_up = open('neuron_up.txt', "w")
     image_up = open('image_up.txt', "w")
@@ -115,8 +115,8 @@ if __name__ == "__main__":
 
     logs = None
     while logs == None:
-        log_path = input("Insira o caminho para a pasta dos json: ").strip()
-        #log_path = "Extrator/logs_unified_final"
+       # log_path = input("Insira o caminho para a pasta dos json: ").strip()
+        log_path = "Extrator/logs_unified_final"
         logs = load_logs(log_path, modelo)
 
     ref_images = load_images(log_path, logs.refNum)
@@ -127,7 +127,7 @@ if __name__ == "__main__":
         text=True
     )
 
-    cmap = mat.colormaps.get_cmap("coolwarm")
+    cmap = mat.colormaps.get_cmap("turbo")
 
     numRef = len(logs.epoca.get(0)[0])
     for (ep, cam) in logs.epoca.items():
