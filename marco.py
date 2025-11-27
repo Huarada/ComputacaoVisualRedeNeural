@@ -1,4 +1,4 @@
-import sys, os, glob, subprocess, json, re, ast, time, matplotlib as mat
+import os, glob, subprocess, json, re, ast, time, matplotlib as mat
 
 def openNetView(modelo, neuron_up):
     try:
@@ -36,7 +36,7 @@ class Log:
     def __init__(self, model):
         self.Camadas = model
         self.epoca = {}
-
+        self.refNum = 0
     def addRef(self, epoca, camada, ref):
         # Verifica o número bate com a camada
         if (self.Camadas[camada] != len(ref)):
@@ -45,6 +45,7 @@ class Log:
         ep = self.epoca.setdefault(epoca, {})
         cam = ep.setdefault(camada, [])
         cam.append(ref)
+        self.refNum = len(cam) 
          
 def load_logs(log_path, modelo):
     search_pattern = os.path.join(log_path, "*.json")
@@ -62,7 +63,7 @@ def load_logs(log_path, modelo):
     for file_path in log_files:
         file_name = os.path.splitext(os.path.basename(file_path))[0] # remove a extensão
 
-        # Carrega apenas das camadas densas
+        # Carrega apenas das camadas densas e imagens
         if file_name[:11] != "dense_epoch":
             continue
 
@@ -89,15 +90,36 @@ def load_logs(log_path, modelo):
     
     return logs
 
+def load_images(image_path, num):
+    search_pattern = os.path.join(image_path, "*.png")
+    imgs = glob.glob(search_pattern)
+
+    total_found = len(imgs)
+    if total_found == 0:
+        print(f"Nenhuma imagem encontrado na pasta:\n**{image_path}**")
+        return []
+    elif total_found < num:
+        print(f"Não há imagens suficientes na pasta:\n**{image_path}**")
+        return []
+    
+    return imgs
+
+
 if __name__ == "__main__":
+    #model_layout = "ativacoes.txt"
     model_layout = input("Insira o caminho para o modelo: ").strip()
     modelo = model_extract(model_layout)
     neuron_up = open('neuron_up.txt', "w")
+    image_up = open('image_up.txt', "w")
+    ref_images = []
 
     logs = None
     while logs == None:
         log_path = input("Insira o caminho para a pasta dos json: ").strip()
+        #log_path = "Extrator/logs_unified_final"
         logs = load_logs(log_path, modelo)
+
+    ref_images = load_images(log_path, logs.refNum)
 
     p = subprocess.Popen( ['./neural3d', f'./{model_layout}', './neuron_up.txt', './image_up.txt'],
         stdout=subprocess.PIPE,
@@ -113,6 +135,8 @@ if __name__ == "__main__":
         for i in range(0, numRef):
             print(f"Época {ep+1}, imagem = {i+1}")
             neuron_up.seek(0)
+            image_up.seek(0)
+            image_up.write(ref_images[i])
 
             for c in cam:
                 cam_cores = cmap(cam[c][i])
