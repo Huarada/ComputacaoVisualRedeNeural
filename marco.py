@@ -91,8 +91,9 @@ def load_logs(log_path, modelo):
     return logs
 
 def load_images(image_path, num):
-    search_pattern = os.path.join(image_path, "*.png")
+    search_pattern = os.path.join(image_path, "refs_orig_***.png")
     imgs = glob.glob(search_pattern)
+    print(imgs)
 
     total_found = len(imgs)
     if total_found == 0:
